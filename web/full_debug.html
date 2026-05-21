@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>完整调试</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #0a1628; overflow: hidden; }
+        .screen { display: none; width: 100vw; height: 100vh; position: fixed; top: 0; left: 0; }
+        .screen.active { display: flex; }
+        #game-canvas { width: 100%; height: 100%; }
+        .hidden { display: none !important; }
+        #debug { position: fixed; top: 200px; left: 10px; color: #0f0; font: 12px monospace; background: rgba(0,0,0,0.8); padding: 10px; z-index: 9999; }
+        #hud { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 100; }
+        .hud-top { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); display: flex; gap: 12px; background: rgba(0, 20, 40, 0.85); padding: 8px 15px; border-radius: 10px; border: 1px solid rgba(100, 150, 200, 0.3); }
+        .hud-item { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+        .hud-item .label { font-size: 0.7rem; color: #8ab4d4; }
+        .hud-item .value { font-size: 0.85rem; font-weight: bold; }
+        .hp-bar { width: 60px; height: 8px; background: rgba(50, 50, 80, 0.8); border-radius: 4px; overflow: hidden; }
+        .hp-bar .fill { height: 100%; background: #4ade80; }
+        .hud-left { position: absolute; top: 70px; left: 8px; }
+        .hud-right { position: absolute; top: 70px; right: 8px; }
+        .panel { background: rgba(0, 20, 40, 0.85); padding: 8px; border-radius: 8px; border: 1px solid rgba(100, 150, 200, 0.3); min-width: 100px; }
+        #joystick-container { position: fixed; bottom: 30px; left: 30px; width: 120px; height: 120px; pointer-events: auto; z-index: 200; }
+        #joystick-base { width: 100%; height: 100%; background: rgba(0, 50, 80, 0.6); border: 2px solid rgba(100, 150, 200, 0.4); border-radius: 50%; position: relative; }
+        #joystick-thumb { width: 50px; height: 50px; background: rgba(100, 180, 255, 0.8); border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+        #fire-button { position: fixed; bottom: 50px; right: 50px; width: 80px; height: 80px; background: rgba(200, 80, 80, 0.8); border: 3px solid rgba(255, 100, 100, 0.9); border-radius: 50%; color: #fff; pointer-events: auto; z-index: 200; }
+        #quick-buttons { position: fixed; bottom: 150px; right: 30px; display: flex; flex-direction: column; gap: 10px; z-index: 200; pointer-events: auto; }
+        .quick-btn { width: 50px; height: 50px; background: rgba(0, 80, 120, 0.8); border: 2px solid rgba(100, 150, 200, 0.5); border-radius: 10px; color: #fff; font-size: 0.7rem; }
+    </style>
+</head>
+<body>
+    <div id="debug"></div>
+    
+    <div id="main-menu" class="screen active">
+        <div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%">
+            <div style="text-align:center">
+                <h1 style="color:#fff;font-size:2rem">🌊 漂流进化</h1>
+                <button id="btn-start" style="padding:15px 30px;font-size:1.2rem;margin:20px">开始游戏</button>
+                <button id="btn-continue" style="padding:15px 30px;font-size:1.2rem" disabled>继续</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="game-screen" class="screen">
+        <canvas id="game-canvas"></canvas>
+        
+        <div id="hud">
+            <div class="hud-top">
+                <div class="hud-item"><span class="label">HP</span><div class="hp-bar"><div id="hp-fill" class="fill"></div></div><span id="hp-text" class="value">50/50</span></div>
+                <div class="hud-item"><span class="label">货物</span><span id="cargo-text" class="value">0/5</span></div>
+                <div class="hud-item"><span class="label">阶段</span><span id="stage-text" class="value">木筏</span></div>
+                <div class="hud-item"><span class="label">⚔️</span><span id="weapon-name" class="value">无</span><span id="weapon-ammo" class="value"></span></div>
+                <div class="hud-item"><span class="label">速度</span><span id="speed-text" class="value">0</span></div>
+            </div>
+            <div class="hud-left">
+                <div class="panel"><h3>📦 物资</h3><div id="inventory-list"></div></div>
+            </div>
+            <div class="hud-right">
+                <div class="panel"><h3>🔧 科技</h3><span id="tech-points" class="value">0</span></div>
+            </div>
+        </div>
+        
+        <div id="evolution-panel" class="panel hidden">
+            <div class="panel-header"><h3>🚀 进化</h3><button id="btn-close-evolution" class="close-btn">×</button></div>
+            <div id="evolution-options"></div>
+        </div>
+        <div id="tech-tree-panel" class="panel hidden">
+            <div class="panel-header"><h3>🌳 科技树</h3><button id="btn-close-tech-tree" class="close-btn">×</button></div>
+            <div id="tech-tree-content"></div>
+        </div>
+        <div id="bug-panel" class="panel hidden">
+            <div class="panel-header"><h3>🐛 Bug猎人</h3><button id="btn-close-bug" class="close-btn">×</button></div>
+            <div id="bug-content"><p>🏆 科技点: <span id="bug-points">0</span></p><textarea id="bug-input" placeholder="描述问题..."></textarea><button id="btn-report-bug" class="action-btn">报告Bug (+50科技点)</button></div>
+        </div>
+        
+        <div id="joystick-container"><div id="joystick-base"><div id="joystick-thumb"></div></div></div>
+        <button id="fire-button">🔥</button>
+        <div id="quick-buttons">
+            <button class="quick-btn" id="btn-evolution">🚀<br>进化</button>
+            <button class="quick-btn" id="btn-tech-tree">🌳<br>科技</button>
+            <button class="quick-btn" id="btn-bug">🐛<br>Bug</button>
+        </div>
+        <div id="game-over" class="hidden"><div class="overlay"><h2>💀 游戏结束</h2><p>载具已被摧毁</p><button id="btn-restart" class="menu-btn">重新开始</button></div></div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/player.js"></script>
+    <script src="js/enemy.js"></script>
+    <script src="js/combat.js"></script>
+    <script src="js/evolution.js"></script>
+    <script src="js/ai.js"></script>
+    <script src="js/game.js"></script>
+    <script>
+    const debug = document.getElementById('debug');
+    function log(msg) { debug.innerHTML += msg + '<br>'; console.log(msg); }
+    window.onerror = function(msg, url, line) { log('ERR line' + line + ': ' + msg); return true; };
+    log('Init...');
+    window.game = new Game();
+    log('Done, state: ' + window.game.state);
+    </script>
+</body>
+</html>

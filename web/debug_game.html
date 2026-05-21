@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>游戏调试版</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #0a1628; overflow: hidden; }
+        .screen { display: none; width: 100vw; height: 100vh; position: fixed; top: 0; left: 0; }
+        .screen.active { display: flex; }
+        #game-canvas { width: 100%; height: 100%; border: 3px solid #0f0; }
+        #debug { position: fixed; top: 60px; left: 10px; color: #fff; font: 12px monospace; background: rgba(0,0,0,0.8); padding: 8px; z-index: 9999; max-width: 90%; word-wrap: break-word; }
+        #hud { position: fixed; top: 10px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); padding: 8px 15px; border-radius: 8px; color: #fff; z-index: 100; }
+    </style>
+</head>
+<body>
+<div id="hud">点击下方按钮开始</div>
+<div id="debug"></div>
+
+<div id="main-menu" class="screen active">
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;gap:20px">
+        <h1 style="color:#fff;font-size:2rem">🌊 漂流进化</h1>
+        <button id="btn-start" style="padding:15px 30px;font-size:1.2rem;background:#2a4a6a;border:2px solid #4a7a9a;border-radius:10px;color:#fff;cursor:pointer">开始游戏</button>
+    </div>
+</div>
+
+<div id="game-screen" class="screen">
+    <canvas id="game-canvas"></canvas>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/player.js"></script>
+<script src="js/enemy.js"></script>
+<script>
+const debug = document.getElementById('debug');
+const hud = document.getElementById('hud');
+
+function log(msg) {
+    debug.innerHTML += msg + '<br>';
+    console.log(msg);
+}
+
+// 简单的游戏状态
+let gameState = 'menu';
+let player = null;
+let camera = { x: 0, y: 0 };
+let enemies = [];
+
+const canvas = document.getElementById('game-canvas');
+const ctx = canvas.getContext('2d');
+
+function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    log(`resize: ${canvas.width}x${canvas.height}`);
+}
+
+window.addEventListener('resize', resize);
+resize();
+
+function startGame() {
+    log('startGame called');
+    
+    // 切换屏幕
+    document.getElementById('main-menu').classList.remove('active');
+    document.getElementById('game-screen').classList.add('active');
+    
+    resize(); // 确保尺寸正确
+    
+    // 创建玩家
+    player = new Player(canvas.width/2, canvas.height/2);
+    log(`玩家创建: (${player.x}, ${player.y}) 尺寸:${player.width}x${player.height} 颜色:${player.getColor()}`);
+    
+    // 相机
+    camera.x = player.x - canvas.width/2;
+    camera.y = player.y - canvas.height/2;
+    log(`相机: (${camera.x}, ${camera.y})`);
+    
+    gameState = 'playing';
+    hud.textContent = `HP: ${player.hp}/${player.maxHp} | 位置: (${Math.round(player.x)}, ${Math.round(player.y)})`;
+    
+    render();
+}
+
+function render() {
+    if (gameState !== 'playing') return;
+    
+    // 清空
+    ctx.fillStyle = '#0a1628';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // 海洋网格
+    ctx.strokeStyle = 'rgba(100, 150, 200, 0.2)';
+    ctx.lineWidth = 1;
+    for (let x = -camera.x % 50; x < canvas.width; x += 50) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, canvas.height);
+        ctx.stroke();
+    }
+    for (let y = -camera.y % 50; y < canvas.height; y += 50) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(canvas.width, y);
+        ctx.stroke();
+    }
+    
+    // 应用相机
+    ctx.save();
+    ctx.translate(-camera.x, -camera.y);
+    
+    // 绘制玩家
+    player.render(ctx);
+    
+    // 白色十字标记
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(player.x - 40, player.y);
+    ctx.lineTo(player.x + 40, player.y);
+    ctx.moveTo(player.x, player.y - 40);
+    ctx.lineTo(player.x, player.y + 40);
+    ctx.stroke();
+    
+    ctx.restore();
+    
+    // 更新HUD
+    hud.textContent = `HP: ${player.hp}/${player.maxHp} | 位置: (${Math.round(player.x)}, ${Math.round(player.y)})`;
+    
+    requestAnimationFrame(render);
+}
+
+document.getElementById('btn-start').addEventListener('click', startGame);
+
+log('页面加载完成');
+log(`初始画布尺寸: ${canvas.width}x${canvas.height}`);
+log(`viewport: ${window.innerWidth}x${window.innerHeight}`);
+</script>
+</body>
+</html>

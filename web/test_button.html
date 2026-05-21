@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>按钮测试</title>
+</head>
+<body>
+    <h1>测试按钮</h1>
+    <button id="test-btn">点击我</button>
+    <div id="result">等待点击...</div>
+    
+    <script>
+    console.log('Script running...');
+    console.log('btn:', document.getElementById('test-btn'));
+    
+    document.getElementById('test-btn').addEventListener('click', function() {
+        console.log('Button clicked!');
+        document.getElementById('result').textContent = '按钮被点击了！';
+        alert('按钮 works!');
+    });
+    
+    console.log('Event listener added');
+    </script>
+</body>
+</html>

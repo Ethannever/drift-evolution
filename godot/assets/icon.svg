@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <rect width="128" height="128" fill="#0d1b2a"/>
+  <rect x="44" y="84" width="40" height="8" fill="#8B4513" rx="2"/>
+  <rect x="36" y="76" width="56" height="12" fill="#A0522D"/>
+  <rect x="32" y="68" width="64" height="12" fill="#CD853F"/>
+  <rect x="40" y="60" width="48" height="10" fill="#DEB887"/>
+  <text x="64" y="52" font-family="monospace" font-size="10" fill="#00d4ff" text-anchor="middle">RAFT</text>
+  <circle cx="20" cy="100" r="6" fill="#00d4ff" opacity="0.6"/>
+  <circle cx="108" cy="30" r="4" fill="#00d4ff" opacity="0.4"/>
+  <circle cx="95" cy="110" r="5" fill="#00d4ff" opacity="0.5"/>
+  <path d="M10 40 Q64 20 118 40" stroke="#1a5f7a" stroke-width="2" fill="none" opacity="0.5"/>
+  <path d="M5 55 Q64 35 123 55" stroke="#1a5f7a" stroke-width="1.5" fill="none" opacity="0.4"/>
+</svg>

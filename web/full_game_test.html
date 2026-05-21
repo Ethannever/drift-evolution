@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>完整游戏测试</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #0a1628; overflow: hidden; }
+        .screen { display: none; width: 100vw; height: 100vh; position: fixed; top: 0; left: 0; }
+        .screen.active { display: flex; }
+        .hidden { display: none !important; }
+        #game-canvas { width: 100%; height: 100%; }
+        #debug { position: fixed; top: 70px; left: 10px; color: #fff; font: 11px monospace; background: rgba(0,0,0,0.85); padding: 8px; z-index: 9999; max-width: 300px; }
+        #hud { position: fixed; top: 10px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); padding: 8px 15px; border-radius: 8px; color: #fff; z-index: 100; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div id="hud">准备就绪</div>
+    <div id="debug"></div>
+    
+    <div id="main-menu" class="screen active">
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;gap:20px">
+            <h1 style="color:#fff;font-size:2rem">🌊 漂流进化</h1>
+            <button id="btn-start" style="padding:15px 30px;font-size:1.2rem;background:#2a4a6a;border:2px solid #4a7a9a;border-radius:10px;color:#fff;cursor:pointer">开始游戏</button>
+        </div>
+    </div>
+    
+    <div id="game-screen" class="screen">
+        <canvas id="game-canvas"></canvas>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/player.js"></script>
+    <script src="js/enemy.js"></script>
+    <script src="js/combat.js"></script>
+    <script>
+const debug = document.getElementById('debug');
+const hud = document.getElementById('hud');
+
+function log(msg) {
+    debug.innerHTML += msg + '<br>';
+}
+
+// 游戏类
+class Game {
+    constructor() {
+        this.canvas = document.getElementById('game-canvas');
+        this.ctx = this.canvas.getContext('2d');
+        this.state = 'menu';
+        this.player = null;
+        this.enemies = [];
+        this.combat = new CombatSystem();
+        this.camera = { x: 0, y: 0 };
+        
+        log('Game created');
+        this.init();
+    }
+    
+    init() {
+        this.resize();
+        window.addEventListener('resize', () => this.resize());
+        
+        document.getElementById('btn-start').addEventListener('click', () => this.startGame());
+        
+        this.gameLoop(16);
+        log('Init complete');
+    }
+    
+    resize() {
+        this.canvas.width = window.innerWidth;
+        this.canvas.height = window.innerHeight;
+        log(`resize: ${this.canvas.width}x${this.canvas.height}`);
+    }
+    
+    startGame() {
+        log('startGame called');
+        
+        this.player = new Player(this.canvas.width / 2, this.canvas.height / 2);
+        log(`Player: (${this.player.x}, ${this.player.y})`);
+        
+        this.enemies = [];
+        this.combat.clear();
+        this.state = 'playing';
+        
+        document.getElementById('main-menu').classList.remove('active');
+        document.getElementById('game-screen').classList.add('active');
+        
+        this.updateHUD();
+        log('startGame complete');
+    }
+    
+    updateHUD() {
+        if (!this.player) return;
+        hud.textContent = `HP: ${this.player.hp}/${this.player.maxHp} | 阶段: ${this.player.name}`;
+    }
+    
+    gameLoop(timestamp) {
+        if (this.state === 'playing') {
+            this.update(16/1000);
+        }
+        this.render();
+        requestAnimationFrame((t) => this.gameLoop(t));
+    }
+    
+    update(dt) {
+        if (!this.player) return;
+        
+        this.player.update(dt, { up: false, down: false, left: false, right: false });
+        
+        this.camera.x = this.player.x - this.canvas.width / 2;
+        this.camera.y = this.player.y - this.canvas.height / 2;
+        
+        log(`update: player(${this.player.x.toFixed(0)}, ${this.player.y.toFixed(0)}) cam(${this.camera.x.toFixed(0)}, ${this.camera.y.toFixed(0)})`);
+    }
+    
+    render() {
+        const ctx = this.ctx;
+        
+        ctx.fillStyle = '#0a1628';
+        ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        
+        if (this.state === 'menu') return;
+        
+        ctx.save();
+        ctx.translate(-this.camera.x, -this.camera.y);
+        
+        if (this.player) {
+            this.player.render(ctx);
+            
+            // 白色十字
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(this.player.x - 40, this.player.y);
+            ctx.lineTo(this.player.x + 40, this.player.y);
+            ctx.moveTo(this.player.x, this.player.y - 40);
+            ctx.lineTo(this.player.x, this.player.y + 40);
+            ctx.stroke();
+        }
+        
+        ctx.restore();
+    }
+}
+
+// 启动
+new Game();
+log('Game started');
+    </script>
+</body>
+</html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>最小化游戏测试</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #0a1628; overflow: hidden; }
+        #game-canvas { 
+            display: block; 
+            border: 3px solid #f00;
+        }
+    </style>
+</head>
+<body>
+<canvas id="game-canvas" width="800" height="600"></canvas>
+<script src="js/config.js"></script>
+<script src="js/player.js"></script>
+<script>
+const canvas = document.getElementById('game-canvas');
+const ctx = canvas.getContext('2d');
+
+// 直接创建玩家
+const player = new Player(canvas.width/2, canvas.height/2);
+
+// 相机
+const camera = { x: 0, y: 0 };
+
+// 清空
+ctx.fillStyle = '#0a1628';
+ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+// 绘制网格背景
+ctx.strokeStyle = 'rgba(100, 150, 200, 0.2)';
+ctx.lineWidth = 1;
+for (let x = 0; x < canvas.width; x += 50) {
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, canvas.height);
+    ctx.stroke();
+}
+for (let y = 0; y < canvas.height; y += 50) {
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(canvas.width, y);
+    ctx.stroke();
+}
+
+// 应用相机变换并绘制玩家
+ctx.save();
+ctx.translate(-camera.x, -camera.y);
+player.render(ctx);
+
+// 白色十字
+ctx.strokeStyle = '#fff';
+ctx.lineWidth = 3;
+ctx.beginPath();
+ctx.moveTo(player.x - 40, player.y);
+ctx.lineTo(player.x + 40, player.y);
+ctx.moveTo(player.x, player.y - 40);
+ctx.lineTo(player.x, player.y + 40);
+ctx.stroke();
+
+ctx.restore();
+
+// 角落信息
+ctx.fillStyle = '#fff';
+ctx.font = '16px monospace';
+ctx.fillText('木筏在画布中心 - 红色边框内', 10, 30);
+ctx.fillText(`玩家位置: (${player.x}, ${player.y})`, 10, 50);
+ctx.fillText(`画布尺寸: ${canvas.width}x${canvas.height}`, 10, 70);
+</script>
+</body>
+</html>

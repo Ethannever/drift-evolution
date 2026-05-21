@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>游戏初始化测试</title>
+    <style>
+        * { margin: 0; padding: 0; }
+        body { background: #0a1628; overflow: hidden; font-family: sans-serif; color: #fff; }
+        .screen { display: none; width: 100vw; height: 100vh; position: fixed; top: 0; left: 0; }
+        .screen.active { display: flex; }
+        #game-canvas { width: 100%; height: 100%; }
+        .hidden { display: none !important; }
+        #debug { position: fixed; top: 10px; left: 10px; color: #0f0; font: 12px monospace; background: rgba(0,0,0,0.8); padding: 10px; z-index: 9999; max-width: 90%; }
+    </style>
+</head>
+<body>
+    <div id="debug"></div>
+    
+    <div id="main-menu" class="screen active">
+        <div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%">
+            <button id="btn-start" style="padding:20px 40px;font-size:1.5rem">开始冒险</button>
+        </div>
+    </div>
+    
+    <div id="game-screen" class="screen">
+        <canvas id="game-canvas"></canvas>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script>
+    const debug = document.getElementById('debug');
+    function log(msg) {
+        debug.innerHTML += msg + '<br>';
+        console.log(msg);
+    }
+    
+    window.onerror = function(msg, url, line) {
+        log('ERROR: ' + msg + ' (line ' + line + ')');
+        return true;
+    };
+    
+    log('Scripts loaded');
+    log('CONFIG defined: ' + (typeof CONFIG !== 'undefined'));
+    
+    // 模拟游戏类
+    class TestGame {
+        constructor() {
+            log('TestGame constructor');
+            this.canvas = document.getElementById('game-canvas');
+            this.ctx = this.canvas.getContext('2d');
+            this.state = 'menu';
+            this.init();
+        }
+        
+        init() {
+            log('init called');
+            this.resize();
+            
+            const btn = document.getElementById('btn-start');
+            log('btn-start found: ' + (btn !== null));
+            
+            btn.addEventListener('click', () => {
+                log('btn-start clicked!');
+                this.startGame();
+            });
+            
+            log('Event listener added');
+        }
+        
+        resize() {
+            this.canvas.width = window.innerWidth;
+            this.canvas.height = window.innerHeight;
+            log('Canvas: ' + this.canvas.width + 'x' + this.canvas.height);
+        }
+        
+        startGame() {
+            log('startGame called!');
+            this.state = 'playing';
+            document.getElementById('main-menu').classList.remove('active');
+            document.getElementById('game-screen').classList.add('active');
+            log('Game started!');
+        }
+    }
+    
+    log('Creating game...');
+    const game = new TestGame();
+    log('Game created, state: ' + game.state);
+    </script>
+</body>
+</html>

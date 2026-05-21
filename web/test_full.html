@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>完整游戏测试</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #0a1628; overflow: hidden; }
+        #game-canvas { display: block; }
+    </style>
+</head>
+<body>
+<canvas id="game-canvas"></canvas>
+<script src="js/config.js"></script>
+<script src="js/player.js"></script>
+<script>
+const canvas = document.getElementById('game-canvas');
+const ctx = canvas.getContext('2d');
+
+// 设置画布尺寸
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+console.log('画布尺寸:', canvas.width, 'x', canvas.height);
+
+// 创建玩家
+const player = new Player(canvas.width/2, canvas.height/2);
+console.log('玩家:', player.x, player.y, player.width, player.height, player.getColor());
+
+// 相机
+const camera = { x: player.x - canvas.width/2, y: player.y - canvas.height/2 };
+console.log('相机:', camera.x, camera.y);
+
+// 清空
+ctx.fillStyle = '#0a1628';
+ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+// 变换
+ctx.save();
+ctx.translate(-camera.x, -camera.y);
+
+// 绘制玩家
+player.render(ctx);
+
+// 画十字标记
+ctx.strokeStyle = '#fff';
+ctx.lineWidth = 3;
+ctx.beginPath();
+ctx.moveTo(player.x - 30, player.y);
+ctx.lineTo(player.x + 30, player.y);
+ctx.moveTo(player.x, player.y - 30);
+ctx.lineTo(player.x, player.y + 30);
+ctx.stroke();
+
+ctx.restore();
+
+// 绘制说明
+ctx.fillStyle = '#fff';
+ctx.font = '20px sans-serif';
+ctx.fillText('白色十字=玩家位置, 棕色方块=木筏', 10, 30);
+
+alert('测试完成，请在浏览器控制台查看日志');
+</script>
+</body>
+</html>

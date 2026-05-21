@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>详细调试</title>
+    <style>
+        body { background: #0a1628; color: #fff; font-family: monospace; padding: 20px; }
+        canvas { border: 2px solid #4a7a9a; display: block; margin: 20px auto; }
+        .debug-info { background: #111; padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .ok { color: lime; } .err { color: red; }
+    </style>
+</head>
+<body>
+<h1>🎮 游戏渲染调试</h1>
+
+<div class="debug-info" id="info"></div>
+<canvas id="game-canvas" width="800" height="600"></canvas>
+
+<script src="js/config.js"></script>
+<script src="js/player.js"></script>
+<script>
+const info = document.getElementById('info');
+const canvas = document.getElementById('game-canvas');
+const ctx = canvas.getContext('2d');
+
+function log(msg, ok=true) {
+    info.innerHTML += `<div class="${ok?'ok':'err'}">${ok?'✅':'❌'} ${msg}</div>`;
+}
+
+try {
+    // 创建玩家
+    const p = new Player(canvas.width/2, canvas.height/2);
+    log(`玩家创建: (${p.x}, ${p.y}) 尺寸:${p.width}x${p.height}`);
+    log(`玩家颜色: ${p.getColor()}`);
+    log(`玩家HP: ${p.hp}/${p.maxHp}`);
+    
+    // 相机 = 玩家位置 - 画布中心
+    const camera = { x: p.x - canvas.width/2, y: p.y - canvas.height/2 };
+    log(`相机: (${camera.x}, ${camera.y})`);
+    
+    // 清空画布（深蓝色背景）
+    ctx.fillStyle = '#0a1628';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    log('背景填充完成');
+    
+    // 应用相机变换
+    ctx.save();
+    ctx.translate(-camera.x, -camera.y);
+    log(`相机变换: translate(${-camera.x}, ${-camera.y})`);
+    
+    // 绘制玩家
+    p.render(ctx);
+    log('玩家渲染完成');
+    
+    ctx.restore();
+    
+    // 画一个红色十字标记玩家实际位置
+    ctx.strokeStyle = '#f00';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(p.x - 15, p.y);
+    ctx.lineTo(p.x + 15, p.y);
+    ctx.moveTo(p.x, p.y - 15);
+    ctx.lineTo(p.x, p.y + 15);
+    ctx.stroke();
+    log(`红色十字标记: (${p.x}, ${p.y})`);
+    
+    // 绘制一个黄色方块在画布中心（应该和木筏重叠）
+    ctx.fillStyle = '#ff0';
+    ctx.fillRect(canvas.width/2 - 10, canvas.height/2 - 10, 20, 20);
+    log(`黄色方块在画布中心: (${canvas.width/2}, ${canvas.height/2})`);
+    
+    info.innerHTML += '<p class="ok">✅ 调试完成！如果木筏可见，黄色方块应该在木筏中心。</p>';
+    
+} catch (e) {
+    info.innerHTML += `<p class="err">❌ 错误: ${e.message}</p>`;
+    console.error(e);
+}
+</script>
+</body>
+</html>

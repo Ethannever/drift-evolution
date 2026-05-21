@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>最终测试</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="main-menu" class="screen active">
+        <div class="menu-container">
+            <h1>🌊 漂流进化</h1>
+            <button id="btn-start" class="menu-btn">开始游戏</button>
+        </div>
+    </div>
+    <div id="game-screen" class="screen">
+        <canvas id="game-canvas"></canvas>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/player.js"></script>
+    <script>
+const canvas = document.getElementById('game-canvas');
+const ctx = canvas.getContext('2d');
+const btnStart = document.getElementById('btn-start');
+const mainMenu = document.getElementById('main-menu');
+const gameScreen = document.getElementById('game-screen');
+
+let player = null;
+let camera = { x: 0, y: 0 };
+
+function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    console.log('Canvas:', canvas.width, 'x', canvas.height);
+}
+
+function startGame() {
+    resize();
+    
+    mainMenu.classList.remove('active');
+    gameScreen.classList.add('active');
+    
+    player = new Player(canvas.width/2, canvas.height/2);
+    console.log('Player:', player.x, player.y, player.width, player.height);
+    
+    camera.x = player.x - canvas.width/2;
+    camera.y = player.y - canvas.height/2;
+    
+    render();
+}
+
+function render() {
+    if (!player) return;
+    
+    // 清空画布
+    ctx.fillStyle = '#0a1628';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // 应用相机变换
+    ctx.save();
+    ctx.translate(-camera.x, -camera.y);
+    
+    // 绘制玩家
+    player.render(ctx);
+    
+    ctx.restore();
+    
+    requestAnimationFrame(render);
+}
+
+window.addEventListener('resize', resize);
+btnStart.addEventListener('click', startGame);
+resize();
+
+console.log('Ready');
+    </script>
+</body>
+</html>

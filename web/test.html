@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head><title>游戏测试</title></head>
+<body>
+<h1>游戏测试</h1>
+<div id="results"></div>
+<script type="module">
+const results = document.getElementById('results');
+
+function log(msg, ok=true) {
+    results.innerHTML += `<p style="color:${ok?'green':'red'}">${ok?'✅':'❌'} ${msg}</p>`;
+}
+
+try {
+    // 1. 加载配置文件
+    log('配置加载成功');
+    
+    // 2. 测试Game类
+    if (typeof Game !== 'undefined') {
+        log('Game类存在');
+        
+        const game = new Game();
+        log(`游戏实例化, 初始状态: ${game.state}`);
+        
+        // 开始游戏
+        game.startGame();
+        log(`开始游戏, 状态: ${game.state}, HP: ${game.player.hp}/${game.player.maxHp}`);
+        
+        // 运行几帧
+        for (let i = 0; i < 10; i++) {
+            game.gameLoop(performance.now() + 16);
+        }
+        log(`10帧后 - 状态: ${game.state}, HP: ${game.player.hp}, 敌人数: ${game.enemies.length}`);
+        
+        // 测试gameOver
+        game.gameOver();
+        log(`gameOver - 状态: ${game.state}`);
+        
+        // 测试重新开始
+        game.startGame();
+        log(`重新开始 - 状态: ${game.state}, HP: ${game.player.hp}`);
+        
+    } else {
+        log('Game类不存在', false);
+    }
+} catch (e) {
+    log(`错误: ${e.message}`, false);
+    console.error(e);
+}
+</script>
+</body>
+</html>

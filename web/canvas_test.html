@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>画布可见性测试</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #0a1628; overflow: hidden; }
+        
+        .screen {
+            display: none;
+            width: 100vw;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background: #0a1628;
+        }
+        .screen.active {
+            display: flex;
+        }
+        #game-canvas {
+            width: 100%;
+            height: 100%;
+            border: 3px solid #f00;
+        }
+    </style>
+</head>
+<body>
+<div id="game-screen" class="screen active">
+    <canvas id="game-canvas"></canvas>
+</div>
+<script src="js/config.js"></script>
+<script src="js/player.js"></script>
+<script>
+const canvas = document.getElementById('game-canvas');
+const ctx = canvas.getContext('2d');
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+document.getElementById('game-screen').addEventListener('click', function() {
+    this.classList.remove('active');
+    document.getElementById('game-screen').classList.add('active');
+});
+
+const player = new Player(canvas.width/2, canvas.height/2);
+
+ctx.fillStyle = '#0a1628';
+ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+ctx.save();
+player.render(ctx);
+ctx.restore();
+
+ctx.fillStyle = '#fff';
+ctx.font = '20px sans-serif';
+ctx.fillText('点击画布外区域切换active状态', 10, 30);
+ctx.fillText(`画布尺寸: ${canvas.width}x${canvas.height}`, 10, 60);
+ctx.fillText(`玩家: (${player.x}, ${player.y})`, 10, 90);
+</script>
+</body>
+</html>

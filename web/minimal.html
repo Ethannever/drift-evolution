@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>极简测试</title>
+    <style>
+        body { margin: 0; background: #0a1628; }
+        canvas { display: block; border: 5px solid #f00; margin: 50px auto; }
+    </style>
+</head>
+<body>
+<canvas id="c" width="200" height="100"></canvas>
+<script src="js/config.js"></script>
+<script src="js/player.js"></script>
+<script>
+const c = document.getElementById('c');
+const ctx = c.getContext('2d');
+
+// 直接在canvas上画
+ctx.fillStyle = '#0a1628';
+ctx.fillRect(0, 0, 200, 100);
+
+// 画木筏
+const p = new Player(100, 50);
+p.render(ctx);
+
+// 画黄色方块参照
+ctx.fillStyle = '#ff0';
+ctx.fillRect(90, 40, 20, 20);
+</script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>调试游戏</title>
+</head>
+<body>
+<h1>游戏调试</h1>
+<div id="debug"></div>
+<canvas id="c" width="400" height="300" style="border:1px solid #fff"></canvas>
+<script src="js/config.js"></script>
+<script src="js/player.js"></script>
+<script>
+const debug = document.getElementById('debug');
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+
+try {
+    // 创建玩家
+    const p = new Player(200, 150);
+    debug.innerHTML += `<p>✅ Player创建成功</p>`;
+    debug.innerHTML += `<p>位置: (${p.x}, ${p.y})</p>`;
+    debug.innerHTML += `<p>尺寸: ${p.width}x${p.height}</p>`;
+    debug.innerHTML += `<p>HP: ${p.hp}/${p.maxHp}</p>`;
+    debug.innerHTML += `<p>颜色: ${p.getColor()}</p>`;
+    
+    // 渲染
+    p.render(ctx);
+    debug.innerHTML += `<p>✅ render()执行完成</p>`;
+    
+    // 画一个参照物
+    ctx.fillStyle = '#f00';
+    ctx.fillRect(190, 140, 20, 20);
+    debug.innerHTML += `<p>红色方块参照: (190,140)</p>`;
+    
+    debug.innerHTML += '<p style="color:lime">✅ 所有测试通过!</p>';
+} catch (e) {
+    debug.innerHTML += `<p style="color:red">❌ 错误: ${e.message}</p>`;
+    console.error(e);
+}
+</script>
+</body>
+</html>

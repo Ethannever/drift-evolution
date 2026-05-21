@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>简单可见性测试</title>
+    <style>
+        * { margin: 0; padding: 0; }
+        body { background: #0a1628; overflow: hidden; }
+        #c { display: block; margin: 0 auto; border: 3px solid #f00; }
+        #log { position: fixed; top: 10px; left: 10px; color: #fff; font: 14px monospace; background: rgba(0,0,0,0.8); padding: 10px; z-index: 9999; }
+    </style>
+</head>
+<body>
+<div id="log">加载中...</div>
+<canvas id="c" width="600" height="400"></canvas>
+<script src="js/config.js"></script>
+<script src="js/player.js"></script>
+<script>
+const log = document.getElementById('log');
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+
+log.textContent = '1. 创建玩家...';
+const p = new Player(300, 200);
+
+log.textContent = `2. 玩家信息: (${p.x}, ${p.y}) 颜色:${p.getColor()}`;
+
+// 清空 - 画布背景
+ctx.fillStyle = '#0a1628';
+ctx.fillRect(0, 0, 600, 400);
+
+log.textContent = '3. 绘制背景完成';
+
+// 相机 = 玩家位置
+const cam = { x: p.x - 300, y: p.y - 200 };
+log.textContent = `4. 相机: (${cam.x}, ${cam.y})`;
+
+ctx.save();
+ctx.translate(-cam.x, -cam.y);
+
+log.textContent = '5. 开始绘制玩家...';
+p.render(ctx);
+
+log.textContent = '6. 玩家绘制完成';
+
+// 画一个巨大的白色十字标记玩家位置
+ctx.strokeStyle = '#fff';
+ctx.lineWidth = 5;
+ctx.beginPath();
+ctx.moveTo(p.x - 50, p.y);
+ctx.lineTo(p.x + 50, p.y);
+ctx.moveTo(p.x, p.y - 50);
+ctx.lineTo(p.x, p.y + 50);
+ctx.stroke();
+
+ctx.restore();
+
+// 画一个绿色方块标记屏幕中心
+ctx.fillStyle = '#0f0';
+ctx.fillRect(290, 190, 20, 20);
+
+log.textContent = '✅ 完成! 白十字=玩家, 绿方块=屏幕中心, 棕色方块=木筏';
+</script>
+</body>
+</html>
