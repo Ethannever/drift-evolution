@@ -177,6 +177,8 @@ class Player {
         }
 
 
+        let dx = 0;
+        let dy = 0;
         if (keys.up) dy = -1;
         if (keys.down) dy = 1;
         if (keys.left) dx = -1;
