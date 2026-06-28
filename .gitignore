@@ -1,0 +1,6 @@
+
+# Backup/temp files
+*.bak
+*.bak*
+*.tmp
+*.broken
