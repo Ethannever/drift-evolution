@@ -1,6 +1,27 @@
-
 # Backup/temp files
 *.bak
 *.bak*
 *.tmp
 *.broken
+
+# Dependencies
+node_modules/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test/debug files
+web/test*.html
+web/debug*.html
+web/minimal*.html
+web/full_*.html
+web/canvas_test.html
+web/simple_test.html
+web/direct_init_test.html
+web/exact_game_test.html
+web/test*.js
+web/debug*.js
+
+# Review state
+.last_review
