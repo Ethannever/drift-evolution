@@ -257,6 +257,10 @@ class AgentHubServer {
         }
     }
     
+    getChatHistory(limit = 50) {
+        return this.chatHistory.slice(-limit);
+    }
+
     getOnlineAgents() {
         const list = [];
         for (const [id, agent] of this.agents) {
